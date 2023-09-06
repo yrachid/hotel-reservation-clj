@@ -5,7 +5,7 @@
            [java.time.format DateTimeFormatter])
   (:require [clojure.string :as str]))
 
-(def ^:private ratings
+(def ^:private tiers
   {"regular" :regular
    "rewards" :rewards})
 
@@ -14,13 +14,13 @@
 (def ^:private date-format
   (DateTimeFormatter/ofPattern "ddMMMyyyy"))
 
-(defn- determine-rating
-  [customer-type]
-  (-> customer-type
+(defn- parse-customer-tier
+  [customer-tier]
+  (-> customer-tier
       str/lower-case
-      ratings))
+      tiers))
 
-(defn- extract-date
+(defn- day-strings-to-local-date
   [date-string]
   (-> date-string
       str/trim
@@ -29,21 +29,21 @@
 
 (defn- weekend?
   [local-date]
-  (contains? weekend-days (.getDayOfWeek date)))
+  (contains? weekend-days (.getDayOfWeek local-date)))
 
-(defn- consolidate-dates
-  [accum date]
-  (let [date-type (if (weekend? date) :weekends :weekdays)]
-    (update accum date-type inc)))
+(defn- count-days-by-type
+  [date-count date]
+  (update date-count (if (weekend? date) :weekends :weekdays) inc))
 
 (defn- determine-schedule
   [date-string]
   (->> (str/split date-string #",")
-       (map extract-date)
-       (reduce consolidate-dates {:weekends 0 :weekdays 0})))
+       (map day-strings-to-local-date)
+       (reduce count-days-by-type {:weekends 0 :weekdays 0})))
 
 (defn rate
   [booking]
-  (let [[rate dates] (str/split booking #":")]
-    {:rating (determine-rating rate)
-     :schedule (determine-schedule dates)}))
+  (let [[tier dates] (str/split booking #":")]
+    {:tier (parse-customer-tier tier)
+     :stay (determine-schedule dates)}))
+
