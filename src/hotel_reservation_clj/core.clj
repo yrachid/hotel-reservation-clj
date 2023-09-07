@@ -24,7 +24,7 @@
   [date-string]
   (-> date-string
       str/trim
-      (subs  0 9)
+      (subs 0 9)
       (LocalDate/parse date-format)))
 
 (defn- weekend?
@@ -43,7 +43,7 @@
        (map day-string-to-local-date)
        (reduce count-days-by-type {:weekends 0 :weekdays 0})))
 
-(defn rate
+(defn parse-booking-string
   [booking]
   (let [[tier dates] (str/split booking #":")]
     {:tier (parse-customer-tier tier)
