@@ -20,7 +20,7 @@
       str/lower-case
       tiers))
 
-(defn- day-strings-to-local-date
+(defn- day-string-to-local-date
   [date-string]
   (-> date-string
       str/trim
@@ -33,12 +33,14 @@
 
 (defn- count-days-by-type
   [date-count date]
-  (update date-count (if (weekend? date) :weekends :weekdays) inc))
+  (if (weekend? date)
+    (update date-count :weekends inc)
+    (update date-count :weekdays inc)))
 
 (defn- determine-schedule
   [date-string]
   (->> (str/split date-string #",")
-       (map day-strings-to-local-date)
+       (map day-string-to-local-date)
        (reduce count-days-by-type {:weekends 0 :weekdays 0})))
 
 (defn rate
