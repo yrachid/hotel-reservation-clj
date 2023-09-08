@@ -20,7 +20,7 @@
 
 (defn -main
   []
-  (->> java.io.BufferedReader. *in*
+  (->> (java.io.BufferedReader. *in*)
        line-seq
        (map booking-string/parse)
        (map to-priced-booking)
