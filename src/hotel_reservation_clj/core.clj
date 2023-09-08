@@ -16,10 +16,13 @@
               :rates {:regular {:weekend 150 :weekday 220}
                       :rewards {:weekend 40  :weekday 100}}}])
 
+(def ^:private price-booking (partial rating/price hotels))
+
 (defn -main
   []
-  (->> (line-seq (java.io.BufferedReader. *in*))
+  (->> java.io.BufferedReader. *in*
+       line-seq
        (map booking-string/parse)
-       (map #(rating/price hotels %))
-       (map #(get % :hotel))
+       (map price-booking)
+       (map :hotel)
        println))
