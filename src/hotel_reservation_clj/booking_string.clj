@@ -6,8 +6,8 @@
   (:require [clojure.string :as str]))
 
 (def ^:private tiers
-  {"regular" :regular
-   "rewards" :rewards})
+  {"Regular" :regular
+   "Rewards" :rewards})
 
 (def ^:private weekend-days #{DayOfWeek/SATURDAY DayOfWeek/SUNDAY})
 
@@ -16,9 +16,10 @@
 
 (defn- parse-customer-tier
   [customer-tier]
-  (-> customer-tier
-      str/lower-case
-      tiers))
+  (let [tier (get tiers customer-tier)]
+    (if (nil? tier)
+      {:error (str "Invalid customer tier '" customer-tier "'")}
+      {:ok tier})))
 
 (defn- date-string-to-local-date
   [date-string]
@@ -43,9 +44,19 @@
        (map date-string-to-local-date)
        (reduce count-days-by-type {:weekends 0 :weekdays 0})))
 
+
+(defn- error?
+  [result]
+  (not (nil? (result :error))))
+
 (defn parse
   [booking-string]
-  (let [[tier dates] (str/split booking-string #":")]
-    {:tier (parse-customer-tier tier)
-     :stay (count-nights-of-stay dates)}))
+  (let [
+        [tier dates] (str/split booking-string #":")
+        parsed-tier (parse-customer-tier tier)
+        nights-of-stay-count (count-nights-of-stay dates)]
+    (cond
+      (error? parsed-tier) parsed-tier
+      :else {:tier (parsed-tier :ok)
+             :stay nights-of-stay-count})))
 

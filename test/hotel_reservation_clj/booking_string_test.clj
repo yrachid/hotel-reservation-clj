@@ -11,7 +11,15 @@
   (testing "Supports Rewards as customer tier"
     (is (= :rewards (-> "Rewards: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                         booking-string/parse
-                        :tier)))))
+                        :tier))))
+  (testing "Validates against invalid tier types"
+    (is (= {:error "Invalid customer tier 'Premium'"}
+           (-> "Premium: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
+               booking-string/parse))))
+  (testing "Is case sensitive"
+    (is (= {:error "Invalid customer tier 'regular'"}
+           (-> "regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
+               booking-string/parse)))))
 
 (deftest stay-calculation
   (testing "Keeps weekends as zero when tere are only weekdays"
