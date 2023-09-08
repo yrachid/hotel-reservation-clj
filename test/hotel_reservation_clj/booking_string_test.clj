@@ -5,9 +5,9 @@
 (deftest customer-tier-support
   (testing "Supports Regular as customer tier"
     (is (= :regular (->
-                      "Regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
-                      booking-string/parse
-                      :tier))))
+                     "Regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
+                     booking-string/parse
+                     :tier))))
   (testing "Supports Rewards as customer tier"
     (is (= :rewards (-> "Rewards: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                         booking-string/parse
