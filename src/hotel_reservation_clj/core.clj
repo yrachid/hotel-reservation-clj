@@ -1,13 +1,9 @@
 (ns hotel-reservation-clj.core
   (:gen-class)
-  (:import [java.time LocalDate]
-           [java.time DayOfWeek]
-           [java.time.format DateTimeFormatter])
-  (:require [clojure.string :as str]
-            [hotel-reservation-clj.booking-string :as booking-string]
+  (:require [hotel-reservation-clj.booking-string :as booking-string]
             [hotel-reservation-clj.hotel-rating :as rating]))
 
-(def hotels [{:name "Lakewood"
+(def ^:private hotels [{:name "Lakewood"
               :rating 3
               :rates {:regular {:weekend 90 :weekday 110}
                       :rewards {:weekend 80 :weekday 80}}}
