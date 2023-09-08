@@ -2,6 +2,10 @@
   (:require [clojure.test :refer :all]
             [hotel-reservation-clj.booking-string :as booking-string]))
 
+(deftest malformed-booking-string
+  (testing "Gracefully fails when a malformed booking string is received"
+    (is (= {:error "Malformed booking string ''"} (booking-string/parse "")))))
+
 (deftest customer-tier-support
   (testing "Supports Regular as customer tier"
     (is (= :regular (->

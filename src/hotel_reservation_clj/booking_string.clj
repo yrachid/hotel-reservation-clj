@@ -44,7 +44,6 @@
        (map date-string-to-local-date)
        (reduce count-days-by-type {:weekends 0 :weekdays 0})))
 
-
 (defn- error?
   [result]
   (not (nil? (result :error))))
