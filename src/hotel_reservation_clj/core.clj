@@ -18,11 +18,19 @@
 
 (def ^:private to-priced-booking (partial rating/price hotels))
 
+(defn to-best-hotel-or-error
+  [booking]
+  (condp = (-> booking keys first)
+    :error (booking :error)
+    :ok (-> booking
+            :ok
+            to-priced-booking
+            :hotel)))
+
 (defn -main
   []
   (->> (java.io.BufferedReader. *in*)
        line-seq
        (map booking-string/parse)
-       (map to-priced-booking)
-       (map :hotel)
+       (map to-best-hotel-or-error)
        println))

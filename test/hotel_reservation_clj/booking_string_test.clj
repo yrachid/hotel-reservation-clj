@@ -15,10 +15,12 @@
     (is (= :regular (->
                      "Regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                      booking-string/parse
+                     :ok
                      :tier))))
   (testing "Supports Rewards as customer tier"
     (is (= :rewards (-> "Rewards: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                         booking-string/parse
+                        :ok
                         :tier))))
   (testing "Validates against invalid tier types"
     (is (= {:error "Invalid customer tier: 'Premium'"}
@@ -34,6 +36,9 @@
     (is (= {:error "Invalid date: '16Bla2009(mon)'"}
            (-> "Regular: 16Bla2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                booking-string/parse)))
+    (is (= {:error "Invalid date: '16ar2009(mon)'"}
+           (-> "Regular: 16ar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
+               booking-string/parse)))
     (is (= {:error "Invalid date: '36Mar2009(tue)'"}
            (-> "Regular: 16Mar2009(mon), 36Mar2009(tue), 18Mar2009(wed)"
                booking-string/parse)))
@@ -46,24 +51,30 @@
     (is (= {:weekdays 3 :weekends 0}
            (-> "Regular: 16Mar2009, 17Mar2009(tues), 18Mar2009(wed)"
                booking-string/parse
+               :ok
                :stay)))
     (is (= {:weekdays 3 :weekends 0}
            (-> "Regular: 16Mar2009(mon), 17Mar2009, 18Mar2009(wed)"
                booking-string/parse
+               :ok
                :stay))))
 
   (testing "Keeps weekends as zero when there are only weekdays"
     (is (= {:weekdays 3 :weekends 0} (-> "Regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                                          booking-string/parse
+                                         :ok
                                          :stay))))
   (testing "Counts weekends and weekdays"
     (is (= {:weekdays 2 :weekends 2} (-> "Regular: 20Mar2009(fri), 21Mar2009(sat), 22Mar2009(sun), 23Mar2009(mon)"
                                          booking-string/parse
+                                         :ok
                                          :stay))))
   (testing "Counts a single night stay"
     (is (= {:weekdays 0 :weekends 1} (-> "Regular: 21Mar2009(sat)"
                                          booking-string/parse
+                                         :ok
                                          :stay)))
     (is (= {:weekdays 1 :weekends 0} (-> "Regular: 20Mar2009(fri)"
                                          booking-string/parse
+                                         :ok
                                          :stay)))))

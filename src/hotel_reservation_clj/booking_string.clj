@@ -82,8 +82,8 @@
     (cond
       (error? parsed-tier) parsed-tier
       (error? nights-of-stay-count) nights-of-stay-count
-      :else {:tier (parsed-tier :ok)
-             :stay (nights-of-stay-count :ok)})))
+      :else (success {:tier (parsed-tier :ok)
+                      :stay (nights-of-stay-count :ok)}))))
 
 (defn- malformed-booking-string-error
   [booking-string]
