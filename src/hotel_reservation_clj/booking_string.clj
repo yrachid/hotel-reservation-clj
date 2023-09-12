@@ -16,9 +16,9 @@
 
 (defn- parse-customer-tier
   [customer-tier]
-  (let [tier (get tiers customer-tier)]
+  (let [tier (tiers customer-tier)]
     (if (nil? tier)
-      {:error (str "Invalid customer tier '" customer-tier "'")}
+      {:error (format "Invalid customer tier '%s'" customer-tier)}
       {:ok tier})))
 
 (defn- date-string-to-local-date
