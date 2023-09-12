@@ -14,9 +14,21 @@
 (def ^:private date-format
   (DateTimeFormatter/ofPattern "ddMMMyyyy"))
 
+(defn- weekend?
+  [local-date]
+  (contains? weekend-days (.getDayOfWeek local-date)))
+
+(defn- error?
+  [result]
+  (not (nil? (result :error))))
+
 (defn- error
   [message]
   {:error message})
+
+(defn success
+  [value]
+  {:ok value})
 
 (defn- invalid-date-error
   [date]
@@ -31,7 +43,7 @@
   (let [tier (tiers customer-tier)]
     (if (nil? tier)
       (invalid-customer-tier-error customer-tier)
-      {:ok tier})))
+      (success tier))))
 
 (defn- date-string-to-local-date
   [date-string]
@@ -39,26 +51,20 @@
     (if (< (count trimmed-date-string) 9)
       (invalid-date-error trimmed-date-string)
       (try
-        {:ok (LocalDate/parse (subs trimmed-date-string 0 9) date-format)}
+        (-> trimmed-date-string
+            (subs 0 9)
+            (LocalDate/parse date-format)
+            success)
         (catch DateTimeParseException ex
           (invalid-date-error trimmed-date-string))))))
-
-(defn- weekend?
-  [local-date]
-  (contains? weekend-days (.getDayOfWeek local-date)))
-
-(defn- error?
-  [result]
-  (not (nil? (result :error))))
 
 (defn- count-nights-of-stay
   [date-string]
   (defn process-date-by-date
     [dates stay]
     (if (empty? dates)
-      stay
-      (let [current (first dates)
-            date (date-string-to-local-date current)]
+      (success stay)
+      (let [date (date-string-to-local-date (first dates))]
         (cond
           (error? date) date
           (weekend? (date :ok)) (process-date-by-date (rest dates) (update stay :weekends inc))
@@ -75,7 +81,7 @@
       (error? parsed-tier) parsed-tier
       (error? nights-of-stay-count) nights-of-stay-count
       :else {:tier (parsed-tier :ok)
-             :stay nights-of-stay-count})))
+             :stay (nights-of-stay-count :ok)})))
 
 (defn- malformed-booking-string-error
   [booking-string]
