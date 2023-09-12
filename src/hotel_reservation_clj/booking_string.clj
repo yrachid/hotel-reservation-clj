@@ -66,7 +66,9 @@
     [dates stay]
     (if (empty? dates)
       (success stay)
-      (let [date (date-string-to-local-date (first dates))]
+      (let [date (-> dates
+                     first
+                     date-string-to-local-date)]
         (cond
           (error? date) date
           (weekend? (date :ok)) (process-date-by-date (rest dates) (update stay :weekends inc))
