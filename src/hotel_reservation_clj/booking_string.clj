@@ -2,7 +2,7 @@
   (:gen-class)
   (:import [java.time LocalDate]
            [java.time DayOfWeek]
-           [java.time.format DateTimeFormatter])
+           [java.time.format DateTimeFormatter DateTimeParseException])
   (:require [clojure.string :as str]))
 
 (def ^:private tiers
@@ -14,19 +14,34 @@
 (def ^:private date-format
   (DateTimeFormatter/ofPattern "ddMMMyyyy"))
 
+(defn- error
+  [message]
+  {:error message})
+
+(defn- invalid-date-error
+  [date]
+  (error (format "Invalid date: '%s'" date)))
+
+(defn- invalid-customer-tier-error
+  [tier]
+  (error (format "Invalid customer tier: '%s'" tier)))
+
 (defn- parse-customer-tier
   [customer-tier]
   (let [tier (tiers customer-tier)]
     (if (nil? tier)
-      {:error (format "Invalid customer tier '%s'" customer-tier)}
+      (invalid-customer-tier-error customer-tier)
       {:ok tier})))
 
 (defn- date-string-to-local-date
   [date-string]
   (let [trimmed-date-string (str/trim date-string)]
     (if (< (count trimmed-date-string) 14)
-      {:error (format "Invalid date: '%s'" trimmed-date-string)}
-      {:ok (LocalDate/parse (subs trimmed-date-string 0 9) date-format)})))
+      (invalid-date-error trimmed-date-string)
+      (try
+        {:ok (LocalDate/parse (subs trimmed-date-string 0 9) date-format)}
+        (catch DateTimeParseException ex
+          (invalid-date-error trimmed-date-string))))))
 
 (defn- weekend?
   [local-date]

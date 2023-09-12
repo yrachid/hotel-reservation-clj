@@ -21,19 +21,31 @@
                         booking-string/parse
                         :tier))))
   (testing "Validates against invalid tier types"
-    (is (= {:error "Invalid customer tier 'Premium'"}
+    (is (= {:error "Invalid customer tier: 'Premium'"}
            (-> "Premium: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                booking-string/parse))))
   (testing "Is case sensitive"
-    (is (= {:error "Invalid customer tier 'regular'"}
+    (is (= {:error "Invalid customer tier: 'regular'"}
            (-> "regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                booking-string/parse)))))
 
- (deftest booking-date-validation
-   (testing "Validates against booking dates out of format"
-     (is (= {:error "Invalid date: '16Mar2009'"}
-            (-> "Regular: 16Mar2009, 17Mar2009(tues), 18Mar2009(wed)"
-                booking-string/parse)))))
+(deftest booking-date-validation
+  (testing "Validates against booking dates out of format"
+    (is (= {:error "Invalid date: '16Mar2009'"}
+           (-> "Regular: 16Mar2009, 17Mar2009(tues), 18Mar2009(wed)"
+               booking-string/parse)))
+    (is (= {:error "Invalid date: '16Bla2009(mon)'"}
+           (-> "Regular: 16Bla2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
+               booking-string/parse)))
+    (is (= {:error "Invalid date: '17Mar2009'"}
+           (-> "Regular: 16Mar2009(mon), 17Mar2009, 18Mar2009(wed)"
+               booking-string/parse)))
+    (is (= {:error "Invalid date: '36Mar2009(tue)'"}
+           (-> "Regular: 16Mar2009(mon), 36Mar2009(tue), 18Mar2009(wed)"
+               booking-string/parse)))
+    (is (= {:error "Invalid date: '2009-03-16T100'"}
+           (-> "Regular: 2009-03-16T100, 17Mar2009(tues), 18Mar2009(wed)"
+               booking-string/parse)))))
 
 (deftest stay-calculation
   (testing "Keeps weekends as zero when tere are only weekdays"
