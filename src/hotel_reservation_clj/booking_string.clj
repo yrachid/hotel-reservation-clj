@@ -38,6 +38,10 @@
   [tier]
   (error (format "Invalid customer tier: '%s'" tier)))
 
+(defn remove-day-of-week
+  [date-string]
+  (subs date-string 0 9))
+
 (defn- parse-customer-tier
   [customer-tier]
   (let [tier (tiers customer-tier)]
@@ -48,15 +52,13 @@
 (defn- date-string-to-local-date
   [date-string]
   (let [trimmed-date-string (str/trim date-string)]
-    (if (< (count trimmed-date-string) 9)
-      (invalid-date-error trimmed-date-string)
-      (try
-        (-> trimmed-date-string
-            (subs 0 9)
-            (LocalDate/parse date-format)
-            success)
-        (catch DateTimeParseException ex
-          (invalid-date-error trimmed-date-string))))))
+    (try
+      (-> trimmed-date-string
+          remove-day-of-week
+          (LocalDate/parse date-format)
+          success)
+      (catch Exception ex
+        (invalid-date-error trimmed-date-string)))))
 
 (defn- count-nights-of-stay
   [date-string]
