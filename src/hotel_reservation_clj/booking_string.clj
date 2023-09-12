@@ -76,8 +76,7 @@
 
 (defn- parse-booking-string-chunks
   [tier-string dates-string]
-  (let [
-        parsed-tier (parse-customer-tier tier-string)
+  (let [parsed-tier (parse-customer-tier tier-string)
         nights-of-stay-count (count-nights-of-stay dates-string)]
     (cond
       (error? parsed-tier) parsed-tier
@@ -91,8 +90,7 @@
 
 (defn parse
   [booking-string]
-  (let [
-        [tier-chunk dates-chunk] (str/split booking-string #":")
+  (let [[tier-chunk dates-chunk] (str/split booking-string #":")
         sanitised-tier-chunk (str/trim (or tier-chunk ""))
         sanitised-dates-chunk (str/trim (or dates-chunk ""))]
     (cond

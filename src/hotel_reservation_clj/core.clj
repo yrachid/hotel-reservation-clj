@@ -4,17 +4,17 @@
             [hotel-reservation-clj.hotel-rating :as rating]))
 
 (def ^:private hotels [{:name "Lakewood"
-              :rating 3
-              :rates {:regular {:weekend 90 :weekday 110}
-                      :rewards {:weekend 80 :weekday 80}}}
-             {:name "Bridgewood"
-              :rating 4
-              :rates {:regular {:weekend 60 :weekday 160}
-                      :rewards {:weekend 50 :weekday 110}}}
-             {:name "Ridgewood"
-              :rating 5
-              :rates {:regular {:weekend 150 :weekday 220}
-                      :rewards {:weekend 40  :weekday 100}}}])
+                        :rating 3
+                        :rates {:regular {:weekend 90 :weekday 110}
+                                :rewards {:weekend 80 :weekday 80}}}
+                       {:name "Bridgewood"
+                        :rating 4
+                        :rates {:regular {:weekend 60 :weekday 160}
+                                :rewards {:weekend 50 :weekday 110}}}
+                       {:name "Ridgewood"
+                        :rating 5
+                        :rates {:regular {:weekend 150 :weekday 220}
+                                :rewards {:weekend 40  :weekday 100}}}])
 
 (def ^:private to-priced-booking (partial rating/price hotels))
 
