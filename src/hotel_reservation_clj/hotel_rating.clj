@@ -7,15 +7,22 @@
     (> (hotel-price-a :rating) (hotel-price-b :rating))
     (< (hotel-price-a :price) (hotel-price-b :price))))
 
+(defn- get-rate
+  [day-type hotel booking]
+  (get-in hotel [:rates (booking :tier) day-type]))
+
+(def ^:private weekend-rate (partial get-rate :weekend))
+(def ^:private weekday-rate (partial get-rate :weekday))
+
 (defn- to-priced-hotel
   [booking]
   (fn [hotel] {:hotel (hotel :name)
                :rating (hotel :rating)
                :price (+
-                       (* (-> booking :stay :weekends)
-                          (-> hotel :rates (get (booking :tier)) :weekend))
-                       (* (-> booking :stay :weekdays)
-                          (-> hotel :rates (get (booking :tier)) :weekday)))}))
+                       (* (get-in booking [:stay :weekends])
+                          (weekend-rate hotel booking))
+                       (* (get-in booking [:stay :weekdays])
+                          (weekday-rate hotel booking)))}))
 
 (defn price
   [hotels booking]
