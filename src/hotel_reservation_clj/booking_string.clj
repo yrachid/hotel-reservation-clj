@@ -48,14 +48,28 @@
   [result]
   (not (nil? (result :error))))
 
-(defn parse
-  [booking-string]
+(defn- parse-booking-string-chunks
+  [tier-string dates-string]
   (let [
-        [tier dates] (str/split booking-string #":")
-        parsed-tier (parse-customer-tier tier)
-        nights-of-stay-count (count-nights-of-stay dates)]
+        parsed-tier (parse-customer-tier tier-string)
+        nights-of-stay-count (count-nights-of-stay dates-string)]
     (cond
       (error? parsed-tier) parsed-tier
       :else {:tier (parsed-tier :ok)
              :stay nights-of-stay-count})))
+
+(defn- malformed-booking-string-error
+  [booking-string]
+  {:error (format "Malformed booking string '%s'" booking-string)})
+
+(defn parse
+  [booking-string]
+  (let [
+        [tier-chunk dates-chunk] (str/split booking-string #":")
+        sanitised-tier-chunk (str/trim (or tier-chunk ""))
+        sanitised-dates-chunk (str/trim (or dates-chunk ""))]
+    (cond
+      (empty? sanitised-tier-chunk) (malformed-booking-string-error booking-string)
+      (empty? sanitised-dates-chunk) (malformed-booking-string-error booking-string)
+      :else (parse-booking-string-chunks tier-chunk dates-chunk))))
 

@@ -4,6 +4,10 @@
 
 (deftest malformed-booking-string
   (testing "Gracefully fails when a malformed booking string is received"
+    (is (= {:error "Malformed booking string ' : '"} (booking-string/parse " : ")))
+    (is (= {:error "Malformed booking string ':'"} (booking-string/parse ":")))
+    (is (= {:error "Malformed booking string ': 16Mar2009(mon)'"} (booking-string/parse ": 16Mar2009(mon)")))
+    (is (= {:error "Malformed booking string 'Regular: '"} (booking-string/parse "Regular: ")))
     (is (= {:error "Malformed booking string ''"} (booking-string/parse "")))))
 
 (deftest customer-tier-support
