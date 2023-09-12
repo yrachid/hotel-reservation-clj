@@ -52,7 +52,7 @@
                booking-string/parse
                :stay))))
 
-  (testing "Keeps weekends as zero when tere are only weekdays"
+  (testing "Keeps weekends as zero when there are only weekdays"
     (is (= {:weekdays 3 :weekends 0} (-> "Regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                                          booking-string/parse
                                          :stay))))
