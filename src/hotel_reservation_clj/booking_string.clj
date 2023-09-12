@@ -36,7 +36,7 @@
 (defn- date-string-to-local-date
   [date-string]
   (let [trimmed-date-string (str/trim date-string)]
-    (if (< (count trimmed-date-string) 14)
+    (if (< (count trimmed-date-string) 9)
       (invalid-date-error trimmed-date-string)
       (try
         {:ok (LocalDate/parse (subs trimmed-date-string 0 9) date-format)}

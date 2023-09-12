@@ -31,14 +31,8 @@
 
 (deftest booking-date-validation
   (testing "Validates against booking dates out of format"
-    (is (= {:error "Invalid date: '16Mar2009'"}
-           (-> "Regular: 16Mar2009, 17Mar2009(tues), 18Mar2009(wed)"
-               booking-string/parse)))
     (is (= {:error "Invalid date: '16Bla2009(mon)'"}
            (-> "Regular: 16Bla2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
-               booking-string/parse)))
-    (is (= {:error "Invalid date: '17Mar2009'"}
-           (-> "Regular: 16Mar2009(mon), 17Mar2009, 18Mar2009(wed)"
                booking-string/parse)))
     (is (= {:error "Invalid date: '36Mar2009(tue)'"}
            (-> "Regular: 16Mar2009(mon), 36Mar2009(tue), 18Mar2009(wed)"
@@ -48,6 +42,16 @@
                booking-string/parse)))))
 
 (deftest stay-calculation
+  (testing "Ignores day of week description in date inputs"
+    (is (= {:weekdays 3 :weekends 0}
+           (-> "Regular: 16Mar2009, 17Mar2009(tues), 18Mar2009(wed)"
+               booking-string/parse
+               :stay)))
+    (is (= {:weekdays 3 :weekends 0}
+           (-> "Regular: 16Mar2009(mon), 17Mar2009, 18Mar2009(wed)"
+               booking-string/parse
+               :stay))))
+
   (testing "Keeps weekends as zero when tere are only weekdays"
     (is (= {:weekdays 3 :weekends 0} (-> "Regular: 16Mar2009(mon), 17Mar2009(tues), 18Mar2009(wed)"
                                          booking-string/parse
