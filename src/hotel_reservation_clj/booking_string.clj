@@ -23,30 +23,33 @@
 
 (defn- date-string-to-local-date
   [date-string]
-  (-> date-string
-      str/trim
-      (subs 0 9)
-      (LocalDate/parse date-format)))
+  (let [trimmed-date-string (str/trim date-string)]
+    (if (< (count trimmed-date-string) 14)
+      {:error (format "Invalid date: '%s'" trimmed-date-string)}
+      {:ok (LocalDate/parse (subs trimmed-date-string 0 9) date-format)})))
 
 (defn- weekend?
   [local-date]
   (contains? weekend-days (.getDayOfWeek local-date)))
 
-(defn- count-days-by-type
-  [stay date]
-  (if (weekend? date)
-    (update stay :weekends inc)
-    (update stay :weekdays inc)))
-
-(defn- count-nights-of-stay
-  [date-string]
-  (->> (str/split date-string #",")
-       (map date-string-to-local-date)
-       (reduce count-days-by-type {:weekends 0 :weekdays 0})))
-
 (defn- error?
   [result]
   (not (nil? (result :error))))
+
+(defn- count-nights-of-stay
+  [date-string]
+  (defn process-date-by-date
+    [dates stay]
+    (if (empty? dates)
+      stay
+      (let [current (first dates)
+            date (date-string-to-local-date current)]
+        (cond
+          (error? date) date
+          (weekend? (date :ok)) (process-date-by-date (rest dates) (update stay :weekends inc))
+          :else (process-date-by-date (rest dates) (update stay :weekdays inc))))))
+
+  (process-date-by-date (str/split date-string #",") {:weekends 0 :weekdays 0}))
 
 (defn- parse-booking-string-chunks
   [tier-string dates-string]
@@ -55,6 +58,7 @@
         nights-of-stay-count (count-nights-of-stay dates-string)]
     (cond
       (error? parsed-tier) parsed-tier
+      (error? nights-of-stay-count) nights-of-stay-count
       :else {:tier (parsed-tier :ok)
              :stay nights-of-stay-count})))
 
