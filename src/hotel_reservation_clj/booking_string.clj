@@ -38,6 +38,10 @@
   [tier]
   (error (format "Invalid customer tier: '%s'" tier)))
 
+(defn- malformed-booking-string-error
+  [booking-string]
+  (error (format "Malformed booking string '%s'" booking-string))
+
 (defn trim-day-of-week
   [date-string]
   (subs date-string 0 9))
@@ -84,10 +88,6 @@
       (error? nights-of-stay-count) nights-of-stay-count
       :else (success {:tier (parsed-tier :ok)
                       :stay (nights-of-stay-count :ok)}))))
-
-(defn- malformed-booking-string-error
-  [booking-string]
-  {:error (format "Malformed booking string '%s'" booking-string)})
 
 (defn parse
   [booking-string]
