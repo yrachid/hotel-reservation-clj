@@ -38,7 +38,7 @@
   [tier]
   (error (format "Invalid customer tier: '%s'" tier)))
 
-(defn remove-day-of-week
+(defn trim-day-of-week
   [date-string]
   (subs date-string 0 9))
 
@@ -54,7 +54,7 @@
   (let [trimmed-date-string (str/trim date-string)]
     (try
       (-> trimmed-date-string
-          remove-day-of-week
+          trim-day-of-week
           (LocalDate/parse date-format)
           success)
       (catch Exception ex
@@ -66,13 +66,12 @@
     [dates stay]
     (if (empty? dates)
       (success stay)
-      (let [date (-> dates
-                     first
-                     date-string-to-local-date)]
-        (cond
-          (error? date) date
-          (weekend? (date :ok)) (process-date-by-date (rest dates) (update stay :weekends inc))
-          :else (process-date-by-date (rest dates) (update stay :weekdays inc))))))
+      (let [date (-> dates first date-string-to-local-date)]
+        (if (error? date)
+          date
+          (if (-> date :ok weekend?)
+            (recur (rest dates) (update stay :weekends inc))
+            (recur (rest dates) (update stay :weekdays inc)))))))
 
   (process-date-by-date (str/split date-string #",") {:weekends 0 :weekdays 0}))
 
