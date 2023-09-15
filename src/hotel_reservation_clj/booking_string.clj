@@ -40,7 +40,7 @@
 
 (defn- malformed-booking-string-error
   [booking-string]
-  (error (format "Malformed booking string '%s'" booking-string))
+  (error (format "Malformed booking string '%s'" booking-string)))
 
 (defn trim-day-of-week
   [date-string]
