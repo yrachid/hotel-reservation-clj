@@ -3,7 +3,8 @@
   (:import [java.time LocalDate]
            [java.time DayOfWeek]
            [java.time.format DateTimeFormatter DateTimeParseException])
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [hotel-reservation-clj.result :as result]))
 
 (def ^:private tiers
   {"Regular" :regular
@@ -18,29 +19,17 @@
   [local-date]
   (contains? weekend-days (.getDayOfWeek local-date)))
 
-(defn- error?
-  [result]
-  (not (nil? (result :error))))
-
-(defn- error
-  [message]
-  {:error message})
-
-(defn success
-  [value]
-  {:ok value})
-
 (defn- invalid-date-error
   [date]
-  (error (format "Invalid date: '%s'" date)))
+  (result/error (format "Invalid date: '%s'" date)))
 
 (defn- invalid-customer-tier-error
   [tier]
-  (error (format "Invalid customer tier: '%s'" tier)))
+  (result/error (format "Invalid customer tier: '%s'" tier)))
 
 (defn- malformed-booking-string-error
   [booking-string]
-  (error (format "Malformed booking string '%s'" booking-string)))
+  (result/error (format "Malformed booking string '%s'" booking-string)))
 
 (defn trim-day-of-week
   [date-string]
@@ -51,7 +40,7 @@
   (let [tier (tiers customer-tier)]
     (if (nil? tier)
       (invalid-customer-tier-error customer-tier)
-      (success tier))))
+      (result/success tier))))
 
 (defn- date-string-to-local-date
   [date-string]
@@ -60,7 +49,7 @@
       (-> trimmed-date-string
           trim-day-of-week
           (LocalDate/parse date-format)
-          success)
+          result/success)
       (catch Exception ex
         (invalid-date-error trimmed-date-string)))))
 
@@ -69,9 +58,9 @@
   (defn process-date-by-date
     [dates stay]
     (if (empty? dates)
-      (success stay)
+      (result/success stay)
       (let [date (-> dates first date-string-to-local-date)]
-        (if (error? date)
+        (if (result/error? date)
           date
           (if (-> date :ok weekend?)
             (recur (rest dates) (update stay :weekends inc))
@@ -83,11 +72,7 @@
   [tier-string dates-string]
   (let [parsed-tier (parse-customer-tier tier-string)
         nights-of-stay-count (count-nights-of-stay dates-string)]
-    (cond
-      (error? parsed-tier) parsed-tier
-      (error? nights-of-stay-count) nights-of-stay-count
-      :else (success {:tier (parsed-tier :ok)
-                      :stay (nights-of-stay-count :ok)}))))
+    (result/zip parsed-tier nights-of-stay-count (fn [tier stay] {:tier tier :stay stay}))))
 
 (defn parse
   [booking-string]
