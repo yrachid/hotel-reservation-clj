@@ -70,9 +70,9 @@
 
 (defn- parse-booking-string-chunks
   [tier-string dates-string]
-  (let [parsed-tier (parse-customer-tier tier-string)
-        nights-of-stay-count (count-nights-of-stay dates-string)]
-    (result/zip parsed-tier nights-of-stay-count (fn [tier stay] {:tier tier :stay stay}))))
+  (result/zip (parse-customer-tier tier-string)
+              (count-nights-of-stay dates-string)
+              (fn [tier stay] {:tier tier :stay stay})))
 
 (defn parse
   [booking-string]

@@ -1,7 +1,8 @@
 (ns hotel-reservation-clj.core
   (:gen-class)
   (:require [hotel-reservation-clj.booking-string :as booking-string]
-            [hotel-reservation-clj.hotel-rating :as rating]))
+            [hotel-reservation-clj.hotel-rating :as rating]
+            [hotel-reservation-clj.result :as result]))
 
 (def ^:private hotels [{:name "Lakewood"
                         :rating 3
@@ -20,12 +21,7 @@
 
 (defn to-best-hotel-or-error
   [booking]
-  (condp = (-> booking keys first)
-    :error (booking :error)
-    :ok (-> booking
-            :ok
-            to-priced-booking
-            :hotel)))
+  (result/map booking to-priced-booking))
 
 (defn -main
   []
